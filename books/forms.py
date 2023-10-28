@@ -29,40 +29,15 @@ class UpdateBookForm(forms.ModelForm):
 
         selected_book = forms.ModelChoiceField(
         queryset=Book.objects.all(),
-        empty_label=None,
-        widget=forms.Select(attrs={'class': 'form-control'}))  
+        empty_label=None, # example to add label
+        widget=forms.Select(attrs={'class': 'form-control'}))  # example to add widgets
     
-
-
-
-
-
-
-
-
-
-""" class UpdateBookForm(forms.ModelForm):
+class ConfirmBookUpdateForm(forms.ModelForm):
     class Meta:
         model = Book
-       # fields = '__all__'  # Use '__all__' to include all fields in the form
-        fields = ['title']
-        def __init__(self, *args, **kwargs):
-            book_instance = kwargs.pop('book_instance', None) # calls the inherited method and adds the book instance to the constructor of this class removing the key from the passed kwargs dict.
-            super(UpdateBookForm, self).__init__(*args, **kwargs)
-            
-            # Pre-fill the form with data from the selected book instance
-            if book_instance:
-                for field in self.fields:
-                    self.fields[field].initial = getattr(book_instance, field) #fields.[fields] refers to the fields dict from djangos forms.Form class and the [fields] refers to the fields in the model
-    
-        def save(self, commit=True): #commit saves changes instantly
-            instance = super(UpdateBookForm, self).save(commit=False) # returns an instance of the model with the updated data
-    
-            # Update the fields with the new data
-            if commit:
-                instance.save()
-            return instance """
+        fields = '__all__'
 
+    published_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'})) # this outputs a date widget in the template '{{update_form.published_date}}' if you include it it must be filled in!
 
 
 """

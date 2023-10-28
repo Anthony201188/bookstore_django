@@ -3,7 +3,7 @@ from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormVi
 from django.views.generic.list import ListView 
 from django.views.generic import DetailView ,View
 from .models import Book
-from .forms import CreateBookForm, SelectBookForm, UpdateBookForm
+from .forms import CreateBookForm, SelectBookForm, UpdateBookForm, ConfirmBookUpdateForm
 from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 
@@ -45,94 +45,69 @@ class BookUpdateView(FormView):
 
     def form_invalid(self, form):
         """If the form is invalid, render the invalid form."""
-        # DEBUGGIN REMOVE WHEN WORKING
         print("form invalid",form) 
         return self.render_to_response(self.get_context_data(form=form))
     
     def form_valid(self, form):
         # Access the selected_book from the POST data
         selected_book_pk = self.request.POST.get('selected_book')
-        print("Selected Book PK from POST data:", selected_book_pk)
-
-        # Additional processing and redirection logic
-        # ...
 
         return redirect('book-update-confirm', pk=selected_book_pk)   
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.all()
-        print("contexxt", context)
         return context
     
-
-
-
-
-
-""" class BookUpdateView(FormView):
-    template_name = 'book-update-template.html'
-    form_class = UpdateBookForm
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['books'] = Book.objects.all()
-        return context
-
-    def form_valid(self, form):
-        selected_book = form.cleaned_data['selected_book']
-        return redirect('book-update-confirm', pk=selected_book.pk) """
 
 class BookUpdateConfirmView(View):
     template_name = 'book-update-confirm-template.html'
 
     def get(self, request, pk):
         selected_book = Book.objects.get(pk=pk)
-        update_form = UpdateBookForm(instance=selected_book)
+        update_form = ConfirmBookUpdateForm(instance=selected_book)
         return render(request, self.template_name,
                 {'selected_book': selected_book, 'update_form': update_form}
                 )
 
     def post(self, request, pk):
         selected_book = Book.objects.get(pk=pk)
-        update_form = UpdateBookForm(request.POST, instance=selected_book)
+        updated_form = ConfirmBookUpdateForm(request.POST, instance=selected_book)
 
-        if update_form.is_valid():
-            update_form.save()
+        if updated_form.is_valid():
+            updated_form.save()
             return redirect('book-list')
 
         return render(request, self.template_name, 
-                      {'selected_book': selected_book, 'update_form': update_form})
+                      {'selected_book': selected_book, 'updated_form': updated_form})
     
 
-class BookSelectView(FormView):
+class BookDeleteView(FormView):
     model = Book
     context_object_name = 'books'
-    template_name = 'book-select-template.html'
+    template_name = 'book-delete-template.html'
     form_class = SelectBookForm
-    success_url = reverse_lazy('book-delete')
+    success_url = reverse_lazy('book-delete-confirm')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        print("context", context)
         context['books'] = Book.objects.all()  # Query the Book model and pass the queryset
         return context
     
     def post(self, request):
         #get the primary key from the form post dict named 'book'
         primary_key = request.POST.get('book')
-        print("primary key",primary_key)
 
         #pass the primary_key value to the delete views url using HTTPResponseRedirect
-        second_view_url = reverse_lazy('book-delete', kwargs={'pk': primary_key}) 
+        second_view_url = reverse_lazy('book-delete-confirm', kwargs={'pk': primary_key}) 
 
         return HttpResponseRedirect(second_view_url)
 
 
 
-class BookDeleteView(DeleteView):
+class BookDeleteConfirmView(DeleteView):
     model = Book
-    template_name = 'book-delete-template.html'
+    template_name = 'book-delete-confirm-template.html'
     success_url = reverse_lazy('book-list')
 
     #the below function should be moved to form_valid method for validation as this bypasses the built in deletion methods when put directly in the delete method

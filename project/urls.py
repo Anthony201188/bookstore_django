@@ -24,7 +24,7 @@ from books.views import (
     BookUpdateView,
     BookCreateView,
     BookDeleteView,
-    BookSelectView,
+    BookDeleteConfirmView,
     BookUpdateConfirmView
 
 )
@@ -35,8 +35,8 @@ urlpatterns = [
     path('create/', BookCreateView.as_view() ,name='book-create'),
     path('update/', BookUpdateView.as_view(), name='book-update'),
     path('update/confirm/<int:pk>/', BookUpdateConfirmView.as_view(), name='book-update-confirm'),
-    path('delete/<int:pk>/',BookDeleteView.as_view(), name='book-delete'),
-    path('select/',BookSelectView.as_view(), name='book-select')
+    path('delete/',BookDeleteView.as_view(), name='book-delete'),
+    path('delete/confirm/<int:pk>/',BookDeleteConfirmView.as_view(), name='book-delete-confirm')
 ]
 
 # Serve static files during development
