@@ -1,0 +1,15 @@
+<!-- FILEPATH: /home/dci-student/Desktop/Django/bookstore_django/templates/book-detail-template.html -->
+
+{% extends 'base.html' %}
+
+{% block header %}
+    <h1>Bookstore</h1>
+    <a href="{% url 'book-list' %}">See all Books in Stock</a>
+{% endblock %}
+
+{% block content %}
+    <h1>{{ book_details.title }}</h1>
+    <p>Author: {{ book_details.author }}</p>
+    <p>Published: {{ book_details.published_date }}</p>
+    <p>Price: £{{ book_details.price }}</p>
+{% endblock %}

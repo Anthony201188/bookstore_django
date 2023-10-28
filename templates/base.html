@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %} HTML Base Template  - Title goes here{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'css/base-style.css' %}">
+</head>
+<body>
+
+    <header>
+        <h1>Django</h1>
+        <nav>
+            <ul>
+                <li><a class="nav-text" href="/">List all Books</a></li>
+                <li><a class="nav-text" href="/about/">About</a></li>
+                <li><a class="nav-text" href="/contact/">Contact</a></li>
+
+            </ul>
+        </nav>
+    </header>
+    {%block header%}
+
+    {%endblock header%}
+
+    {% block content %}
+    HTML Base Template - Content goes here
+    {% endblock %}
+
+    {%block footer%}
+    <footer>
+        <p>&copy; {{ current_year }} My Website</p>
+        <p id="clock"></p>
+    </footer>
+    {%endblock footer%}
+
+    <script>
+        function updateClock() {
+            const clock = document.getElementById("clock");
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, "0");
+            const minutes = now.getMinutes().toString().padStart(2, "0");
+            const seconds = now.getSeconds().toString().padStart(2, "0");
+            clock.textContent = `${hours}:${minutes}:${seconds}`;
+        }
+
+        setInterval(updateClock, 1000);
+    </script>
+</body>
+</html>

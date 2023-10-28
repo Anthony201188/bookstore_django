@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block header %}
+    <h1>Bookstore</h1>
+    <a href="{% url 'book-list' %}">See all Books</a>
+{% endblock %}
+
+<h2>Confirm deletion</h2>
+<p>Are you sure you want to delete this book?</p>
+
+{% block title %} Delete a book {% endblock %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="confirm" value="yes">Yes, confirm book deletion!</button>
+        <a href="{% url 'book-list' %}">Cancel</a>
+    </form>
+{% endblock content %}
