@@ -1,11 +1,15 @@
+from typing import Any
 from django.shortcuts import render, redirect
-from django.views.generic.edit import CreateView, DeleteView, UpdateView, FormView
+from django.views.generic.edit import CreateView, DeleteView, FormView 
 from django.views.generic.list import ListView 
 from django.views.generic import DetailView ,View
+from django.contrib.auth.views import LoginView, LogoutView
 from .models import Book
 from .forms import CreateBookForm, SelectBookForm, UpdateBookForm, ConfirmBookUpdateForm
-from django.urls import reverse_lazy, reverse
-from django.http import HttpResponse, HttpResponseRedirect
+from django.urls import reverse_lazy
+from django.http import  HttpResponseRedirect
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib import messages
 
 class BookListView(ListView):
     model = Book
@@ -110,12 +114,47 @@ class BookDeleteConfirmView(DeleteView):
     template_name = 'book-delete-confirm-template.html'
     success_url = reverse_lazy('book-list')
 
-    #the below function should be moved to form_valid method for validation as this bypasses the built in deletion methods when put directly in the delete method
     def form_valid(self, form):
-        #override the built in delete method
         self.object = self.get_object() # get object collects the pk from the url
         self.object.delete()
         return HttpResponseRedirect(self.success_url)
+    
+class BookLoginView(LoginView):
+    template_name = 'login.html'
+
+class BookLogoutView(LogoutView):
+    template_name = 'logout.html'
+
+    #method 1 for dynamic user name display doesnt work
+    #this is becasue the user is logged out before the re-direct 
+    # def get_context_data(self, **kwargs: Any):
+    #     context = super().get_context_data(**kwargs)
+    #     context['user'] = self.request.user
+    #     return context
+
+    # method 2 using messages framework
+    def get(self, request, *args, **kwargs):
+        
+        messages.success(request, 'You have been logged out successfully.') # uses the {%messages%}{{message}} tags, see logout.html for full standard use
+        return super().get(request, *args, **kwargs)
+
+class LoggedinBookListView(BookListView):
+    """ extends from book list with welcome and log out options """
+    template_name = 'logged-in-book-list-template.html'
+
+
+    def get_context_data(self, **kwargs: Any):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user # get the user data from the http request 
+       #context['key'] = value <- this syntax is context(dictname), ['dictval'], =value to add.
+       # its the baisc syntax to add values to dicts
+        return context
+    
+
+class SignUpView(CreateView):
+    form_class = UserCreationForm # built in method from the auth model
+    success_url = reverse_lazy('login')
+    template_name = 'sign-up.html'
 
 
 

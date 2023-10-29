@@ -128,3 +128,12 @@ STATICFILES_DIRS = ( BASE_DIR/ 'static' ,)
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Login/Logout auth settings
+
+LOGIN_URL = 'login/'
+
+LOGIN_REDIRECT_URL = 'book-list/' # adds this to the url on successful login
+
+#LOGOUT_REDIRECT_URL =''

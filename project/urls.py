@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path
+
+# CRUD views
 from books.views import (
     BookListView,
     BookDetailView,
@@ -25,9 +27,15 @@ from books.views import (
     BookCreateView,
     BookDeleteView,
     BookDeleteConfirmView,
-    BookUpdateConfirmView
+    BookUpdateConfirmView)
 
-)
+# authentication views
+from books.views import (
+    BookLogoutView,
+    BookLoginView,
+    SignUpView,
+    LoggedinBookListView
+    )
 
 urlpatterns = [
     path('', BookListView.as_view(), name='book-list'), # list view used as home
@@ -36,7 +44,12 @@ urlpatterns = [
     path('update/', BookUpdateView.as_view(), name='book-update'),
     path('update/confirm/<int:pk>/', BookUpdateConfirmView.as_view(), name='book-update-confirm'),
     path('delete/',BookDeleteView.as_view(), name='book-delete'),
-    path('delete/confirm/<int:pk>/',BookDeleteConfirmView.as_view(), name='book-delete-confirm')
+    path('delete/confirm/<int:pk>/',BookDeleteConfirmView.as_view(), name='book-delete-confirm'),
+    path('login/', BookLoginView.as_view(),name='login'),
+    path('logout/', BookLogoutView.as_view(),name='logout'),
+    path('sign-up/', SignUpView.as_view(), name='sign-up'),
+    path('login/book-list/', LoggedinBookListView.as_view(), name='logged-in-book-list')
+
 ]
 
 # Serve static files during development

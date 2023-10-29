@@ -2,10 +2,13 @@
 
 {% block header %}
     <h1>Bookstore</h1>
+    {% if user.is_authenticated %}
+        <p>Welcome {{user.username}}, nice to see you again!</p>
+    {% endif %}
     <a href="{% url 'book-create' %}">Add a new book</a><br>
     <a href="{% url 'book-delete' %}">Remove a sold book</a><br>
     <a href="{% url 'book-update' %}">Update and existing book</a><br>
-    <a href="{% url 'login' %}">Login</a>
+    <a href="{% url 'logout' %}">Logout</a>
 {% endblock %}
 
 {% block title %}List of Books{% endblock %}

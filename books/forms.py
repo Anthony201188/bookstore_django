@@ -1,11 +1,11 @@
 from django import forms
 from .models import Book
+#from django.contrib.auth.forms import UserCreationForm
 
 class CreateBookForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = '__all__'
-
 
 
 class SelectBookForm(forms.Form):
@@ -18,10 +18,6 @@ class SelectBookForm(forms.Form):
         )
 
 
-
-
-
-
 class UpdateBookForm(forms.ModelForm):
     class Meta:
         model = Book  # Associate the form with the Book model
@@ -31,14 +27,14 @@ class UpdateBookForm(forms.ModelForm):
         queryset=Book.objects.all(),
         empty_label=None, # example to add label
         widget=forms.Select(attrs={'class': 'form-control'}))  # example to add widgets
-    
+
+
 class ConfirmBookUpdateForm(forms.ModelForm):
     class Meta:
         model = Book
         fields = '__all__'
 
     published_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'})) # this outputs a date widget in the template '{{update_form.published_date}}' if you include it it must be filled in!
-
 
 """
 NOTE -from customisations
