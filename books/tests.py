@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.urls import reverse, reverse_lazy
 from .models import Book
 from datetime import date
 from decimal import Decimal # used as floats for prices arent exact numbers
@@ -51,8 +52,20 @@ class BookModelTest(TestCase):
         self.assertEqual(the_hobbit_book.published_date, date(1998,10,22))
         self.assertEqual(the_hobbit_book.price, Decimal('9.00'))
 
-    def test_book_create_view(self): # uses view 
-        # more integrated test of the functioning of the website as a whole
+
+    def test_book_create_view(self): 
+        """ more integrated test of the functioning of the website as a whole that tests the view as a whole and its associated view functions """
+
+        # Resolution URL Check 
+        expected_url ='create/' # version 2 -> reverse('book-create')  
+        url_by_name = reverse_lazy('book-create')
+
+        # Request-Response URL Check 
+        response = self.client.get(expected_url)  
+        self.assertEqual(response.url, expected_url) 
+        self.assertEqual(response.url, url_by_name)
+
+        #testing the creation of a model instance
         response = self.client.post('/create/',{"title":'new title', #post creates a new model instance object direclty using the url
                                                "author":'new author',
                                                "description":'new description',
@@ -66,8 +79,21 @@ class BookModelTest(TestCase):
         self.assertEqual(new_book.author,"new author")
         self.assertEqual (float(new_book.price), 5.89)
 
+ 
+
     def test_book_update_view(self): 
-        response = self.client.post('/update/confirm/3/',
+        #URL testing
+        # Resolution URL Check 
+        expected_url ='update/confirm/3' # version 2 -> reverse('book-create')  
+        url_by_name = reverse_lazy('book-update-confirm', args=[3])
+
+        # Request-Response URL Check 
+        response = self.client.get(expected_url)  
+        self.assertEqual(response.url, expected_url) 
+        self.assertEqual(response.url, url_by_name)
+
+        # Test the view and the valid form submission
+        response = self.client.post('/update/confirm/3/', #version 1 of the leint post method
         {
             "title":'new1 title', 
             "author":'new1 author',
@@ -75,22 +101,39 @@ class BookModelTest(TestCase):
             "published_date":'2001-10-11',
             "price":'5.89'
         })
+
+        #testing remove once tests verified
         testing = response.content
         print("response content",testing)
-        new_book = (Book.objects.last()) 
-        
+
+        new_book = (Book.objects.last())
         self.assertEqual(response.status_code,302) #check for re-direct always happens after a post (create)
         self.assertEqual(new_book.title,"new1 title") 
         self.assertEqual(new_book.author,"new1 author") 
-        self.assertEqual (float(new_book.price), 5.89)       
+        self.assertEqual (float(new_book.price), 5.89) 
 
 
+      
 
+    def test_book_update_form_invalid(self):
+        #submit invalid form submission
+        invalid_data = {
+        "title": "",
+        "author": "",
+        "description": None,
+        "published_date": "invalid_date",
+        "price": "invalid_price"
+        }
+        response = self.client.post(reverse('book-update-confirm', args=[3]),invalid_data)
 
-    #version 2
-    #     retrived_book_from_db = Book.objects.all() # returns queryset
-    #     self.assertEqual(retrived_book_from_db.count(),3)
-        
+        #test response
+        self.assertNotEqual(response.status_code, 302)
+        self.assertFormError(response,'updated_form', 'title', 'This field is required.')
+        self.assertFormError(response,'updated_form', 'author', 'This field is required.')
+        self.assertFormError(response,'updated_form', 'description', 'This field is required.')
+        self.assertFormError(response,'updated_form', 'price', 'Enter a valid number.')
+        self.assertFormError(response,'updated_form', 'published_date', 'Enter a valid date.')
+
         
         
             

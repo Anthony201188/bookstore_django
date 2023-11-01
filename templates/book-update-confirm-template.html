@@ -27,6 +27,13 @@
         <!-- {{update_form.published_date}} -->
         <button type="submit">Confirm Update</button>
     </form>
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
     {% else %}
     <form method="post" action="">
         {% csrf_token %}

@@ -81,6 +81,12 @@ class BookUpdateConfirmView(View):
         if updated_form.is_valid():
             updated_form.save()
             return redirect('book-list')
+        
+        else:
+            for field , errors in updated_form.errors.items():
+                print(f"fields: {field}, errors: {errors}")
+                for error in errors:
+                    messages.error(request, f"Error in {field}: {error}")
 
         return render(request, self.template_name, 
                       {'selected_book': selected_book, 'updated_form': updated_form})
