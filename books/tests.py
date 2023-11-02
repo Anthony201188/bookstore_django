@@ -5,7 +5,7 @@ from datetime import date
 from decimal import Decimal # used as floats for prices arent exact numbers
 
 
-class BookModelTest(TestCase):
+class BookModelCRUDTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
@@ -34,6 +34,7 @@ class BookModelTest(TestCase):
             price='9.00')
 
     def test_book_model_read(self): #naming convention must icnlude 'test' at the start.
+        """ test the retrevial of the test data(CRUD=read) """
         #retrieve the model instance  by title
         harry_potter_book = Book.objects.get(title='Harry Potter')
         the_hobbit_book = Book.objects.get(title='The Hobbit')
@@ -54,16 +55,17 @@ class BookModelTest(TestCase):
 
 
     def test_book_create_view(self): 
-        """ more integrated test of the functioning of the website as a whole that tests the view as a whole and its associated view functions """
+        """ more integrated test of the functioning of the website as a whole ,
+        that tests the view as a whole and its associated view functions (CRUD=create)"""
 
-        # Resolution URL Check 
-        expected_url ='create/' # version 2 -> reverse('book-create')  
+        #Test URL by name
+        expected_url ='/create/' 
         url_by_name = reverse_lazy('book-create')
+        self.assertEqual(expected_url, url_by_name)  
 
         # Request-Response URL Check 
         response = self.client.get(expected_url)  
-        self.assertEqual(response.url, expected_url) 
-        self.assertEqual(response.url, url_by_name)
+        self.assertEqual(response.status_code, 200) # not really needed
 
         #testing the creation of a model instance
         response = self.client.post('/create/',{"title":'new title', #post creates a new model instance object direclty using the url
@@ -82,16 +84,17 @@ class BookModelTest(TestCase):
  
 
     def test_book_update_view(self): 
-        #URL testing
-        # Resolution URL Check 
-        expected_url ='update/confirm/3' # version 2 -> reverse('book-create')  
+        """ test the modification of an existing model instance using a form
+          (CRUD=update) """
+        #Test URL by name
+        expected_url ='/update/confirm/3/' 
         url_by_name = reverse_lazy('book-update-confirm', args=[3])
+        self.assertEqual(expected_url, url_by_name)  
 
         # Request-Response URL Check 
         response = self.client.get(expected_url)  
-        self.assertEqual(response.url, expected_url) 
-        self.assertEqual(response.url, url_by_name)
-
+        self.assertEqual(response.status_code, 200) #<- not really needed as 302 response asserted below and 302 doesnt occur without a 200 first
+        
         # Test the view and the valid form submission
         response = self.client.post('/update/confirm/3/', #version 1 of the leint post method
         {
@@ -102,9 +105,6 @@ class BookModelTest(TestCase):
             "price":'5.89'
         })
 
-        #testing remove once tests verified
-        testing = response.content
-        print("response content",testing)
 
         new_book = (Book.objects.last())
         self.assertEqual(response.status_code,302) #check for re-direct always happens after a post (create)
@@ -120,7 +120,7 @@ class BookModelTest(TestCase):
         invalid_data = {
         "title": "",
         "author": "",
-        "description": None,
+        "description": "",
         "published_date": "invalid_date",
         "price": "invalid_price"
         }
@@ -131,14 +131,61 @@ class BookModelTest(TestCase):
         self.assertFormError(response,'updated_form', 'title', 'This field is required.')
         self.assertFormError(response,'updated_form', 'author', 'This field is required.')
         self.assertFormError(response,'updated_form', 'description', 'This field is required.')
-        self.assertFormError(response,'updated_form', 'price', 'Enter a valid number.')
+        self.assertFormError(response,'updated_form', 'price', 'Enter a number.')
         self.assertFormError(response,'updated_form', 'published_date', 'Enter a valid date.')
 
-        
-        
-            
+    def test_book_deletion(self):
+        #check URL routing and naming
+        excepted_url = '/delete/confirm/3/'
+        url_by_name = reverse_lazy('book-delete-confirm', args=[3])
+        self.assertEqual(excepted_url, url_by_name)
+
+        # check removal of book modal instance id=3
+        response =  self.client.post(url_by_name)
+        self.assertEqual(response.status_code,302 )
+
+        deleted_model_instance = Book.objects.get(id=3)
+        self.assertTrue = deleted_model_instance
 
 
+class BookModelAPITest(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        classmethod_testbook = Book.objects.create(
+            title='global testing book',
+            author='Myself',
+            description='a book about me',
+            published_date='2023-11-23',
+            price='2.99'
+        )
+
+    def test_collection_api(self):
+        #test the correct url and the post request response at the same time
+        url_by_name = reverse_lazy('book-list-api')
+        response =  self.client.get(url_by_name)
+
+        #check the response
+        self.assertEqual(response.status_code, 200)
+        #self.assertEqual(response.status_code, 304)
+
+        # Check if the response has a JSON content type
+        content_type = response['Content-Type']
+        self.assertTrue(content_type.startswith('application/json'))
+        print("content_type:", content_type)
+
+        # Decode the JSON response content
+        print("response", response) #<-testin remove when complete
+        content = response.json()
+        unwrapped_content = content[0]
+        print("content",content) #<-testin remove when complete
+
+        # Now you can access and validate the JSON data
+        self.assertEqual(unwrapped_content['title'], 'global testing book')
+
+    def test_resource_api(self):
+        """ test the detail api here """
+        pass
 
 
 

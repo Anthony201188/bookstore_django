@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
-from django.urls import path
+from django.urls import path, include
 
 # CRUD views
 from books.views import (
@@ -48,8 +48,8 @@ urlpatterns = [
     path('login/', BookLoginView.as_view(),name='login'),
     path('logout/', BookLogoutView.as_view(),name='logout'),
     path('sign-up/', SignUpView.as_view(), name='sign-up'),
-    path('login/book-list/', LoggedinBookListView.as_view(), name='logged-in-book-list')
-
+    path('login/book-list/', LoggedinBookListView.as_view(), name='logged-in-book-list'),
+    path('api/', include("books.urls")) #<- includes the urls file from the books app
 ]
 
 # Serve static files during development

@@ -1,20 +1,30 @@
+#Utils
 from typing import Any
+from django.urls import reverse_lazy
+from django.http import  HttpResponseRedirect
 from django.shortcuts import render, redirect
+from django.contrib import messages
+#Models
+from .models import Book
+#CBVs
 from django.views.generic.edit import CreateView, DeleteView, FormView 
 from django.views.generic.list import ListView 
 from django.views.generic import DetailView ,View
 from django.contrib.auth.views import LoginView, LogoutView
-from .models import Book
+#Forms
 from .forms import CreateBookForm, SelectBookForm, UpdateBookForm, ConfirmBookUpdateForm
-from django.urls import reverse_lazy
-from django.http import  HttpResponseRedirect
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib import messages
+#APIs
+from rest_framework import generics
+from .serializers import BookSerializer
+
+
 
 class BookListView(ListView):
     model = Book
     template_name = 'book-list-template.html' 
     context_object_name = 'books' #<- used for the context name in the template. 
+
 
 class BookDetailView(DetailView):
     model = Book
@@ -36,11 +46,13 @@ class BookDetailView(DetailView):
         return obj
     """
 
+
 class BookCreateView(CreateView):
     model = Book
     form_class = CreateBookForm
     template_name = 'book-create-template.html'
     success_url = reverse_lazy('book-list') # use revervse lazy to redirect to book view to see updates
+
 
 class BookUpdateView(FormView):
     model = Book
@@ -84,7 +96,8 @@ class BookUpdateConfirmView(View):
         
         else:
             for field , errors in updated_form.errors.items():
-                print(f"fields: {field}, errors: {errors}")
+                #used for testing
+                #print(f"fields: {field}, errors: {errors}")
                 for error in errors:
                     messages.error(request, f"Error in {field}: {error}")
 
@@ -112,7 +125,6 @@ class BookDeleteView(FormView):
         second_view_url = reverse_lazy('book-delete-confirm', kwargs={'pk': primary_key}) 
 
         return HttpResponseRedirect(second_view_url)
-
 
 
 class BookDeleteConfirmView(DeleteView):
@@ -162,6 +174,15 @@ class SignUpView(CreateView):
     success_url = reverse_lazy('login')
     template_name = 'sign-up.html'
 
+
+#APIs
+class BooksListAPI(generics.ListAPIView):
+    queryset = Book.objects.all()#[:2] # optional slicing
+    serializer_class = BookSerializer
+
+class BooksDetailAPI(generics.RetrieveAPIView):
+    queryset = Book.objects.all() #<- is this inefficient because its returning all rather than just one object?
+    serializer_class = BookSerializer
 
 
 

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'books'
 ]
 
@@ -137,3 +138,12 @@ LOGIN_URL = 'login/'
 LOGIN_REDIRECT_URL = 'book-list/' # adds this to the url on successful login
 
 #LOGOUT_REDIRECT_URL =''
+
+# API settings
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}
